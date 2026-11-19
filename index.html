@@ -501,7 +501,7 @@ body::after{content:""; position:fixed; inset:0; z-index:200; pointer-events:non
 #loader.done .panel.t{transform:translateY(-101%)}
 #loader.done .panel.b{transform:translateY(101%)}
 #loader.gone{display:none}
-body.loading .rise{animation-play-state:paused}
+body.loading .rise, body.loading .view.on .rise{animation-play-state:paused}
 /* hard-hide entrance elements while loading: some browsers (Safari) paint one frame before a paused animation applies */
 body.loading .view .rise, body.loading .view [data-reveal], body.loading .view [data-split] .wi:not(.still), body.loading .view em.serif, body.loading .view .shine{opacity:0!important}
 body.loading{overflow:hidden; height:100%; overscroll-behavior:none}
