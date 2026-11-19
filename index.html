@@ -1138,9 +1138,11 @@ em.serif, .hero h1 .shine, .cta-band h2 em{font-family:var(--font-accent); font-
       entries.forEach(function(e){
         if (!e.isIntersecting) return; dustIO.unobserve(e.target);
         var w = e.target, wait = w.closest(".pending, .shown") ? 1050 : 300;
+        wait += Math.max(0, (window.__holdUntil || 0) - performance.now());
         setTimeout(function(){ formWord(w); }, wait);
       });
     }, { threshold: 0.6 }) : null;
+    function later(fn){ var d = (window.__holdUntil || 0) - performance.now(); if (d > 0) setTimeout(fn, d); else requestAnimationFrame(fn); }
     function prepDust(view){
       if (reduce || !ioOK) return;
       view.querySelectorAll(".hero h1 .shine, em.serif, .cta-band h2 em").forEach(function(w){
@@ -1152,7 +1154,7 @@ em.serif, .hero h1 .shine, .cta-band h2 em{font-family:var(--font-accent); font-
       if (reduce) { view.querySelectorAll("[data-split]").forEach(function(h){ h.classList.add("in"); }); return; }
       view.querySelectorAll("[data-split]").forEach(function(h){
         h.classList.remove("in");
-        if (!ioOK || (immediate && inView(h))){ void h.offsetWidth; requestAnimationFrame(function(){ h.classList.add("in"); }); }
+        if (!ioOK || (immediate && inView(h))){ void h.offsetWidth; later(function(){ h.classList.add("in"); }); }
         else io.observe(h);
       });
       view.querySelectorAll("[data-reveal]").forEach(function(el){
@@ -1160,7 +1162,7 @@ em.serif, .hero h1 .shine, .cta-band h2 em{font-family:var(--font-accent); font-
         el.classList.remove("shown", "pending", "clip");
         if (kind === "clip") el.classList.add("clip");
         if (!ioOK) return;
-        if (immediate && inView(el)){ el.classList.add("pending"); void el.offsetWidth; requestAnimationFrame(function(){ el.classList.remove("pending"); el.classList.add("shown"); settle(el); }); }
+        if (immediate && inView(el)){ el.classList.add("pending"); void el.offsetWidth; later(function(){ el.classList.remove("pending"); el.classList.add("shown"); settle(el); }); }
         else { el.classList.add("pending"); io.observe(el); }
       });
     };
@@ -1272,10 +1274,18 @@ em.serif, .hero h1 .shine, .cta-band h2 em{font-family:var(--font-accent); font-
 
     // --- preloader ---
     var loader = document.getElementById("loader");
-    function startSite(){
-      body.classList.remove("loading", "veil"); document.documentElement.classList.remove("booting");
-      formLogo(document.querySelector("header .brand svg.logo"), { dur: 1400, spread: 350, size: .8, pad: 60 });
+    function startSite(hold){
+      hold = hold || 0;
+      window.__holdUntil = performance.now() + hold;
+      body.classList.remove("veil"); document.documentElement.classList.remove("booting");
       var v = document.querySelector(".view.on"); if (v) window.__prepView(v, true);
+      var hdr = document.querySelector("header .brand svg.logo");
+      if (hold && !reduce) hdr.classList.add("forming");
+      // .rise entrances stay paused on their hidden first frame until the hold ends
+      setTimeout(function(){
+        body.classList.remove("loading");
+        formLogo(hdr, { dur: 1400, spread: 350, size: .8, pad: 60 });
+      }, hold);
     }
     if (reduce || !body.classList.contains("loading")){ loader.classList.add("gone"); startSite(); }
     else {
@@ -1292,7 +1302,7 @@ em.serif, .hero h1 .shine, .cta-band h2 em{font-family:var(--font-accent); font-
         if (p >= 1) seam.classList.add("met");
         if (p < 1) requestAnimationFrame(step);
         else setTimeout(function(){
-          loader.classList.add("done"); body.classList.remove("veil"); document.documentElement.classList.remove("booting"); window.scrollTo(0, 0); startSite();
+          loader.classList.add("done"); body.classList.remove("veil"); document.documentElement.classList.remove("booting"); window.scrollTo(0, 0); startSite(700);
           setTimeout(function(){ loader.classList.add("gone"); }, 1200);
         }, 180);
       })(t0);
