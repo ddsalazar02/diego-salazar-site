@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="utf-8">
+<script>try{var t=localStorage.getItem("theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Diego Salazar Digital Services</title>
 <meta name="description" content="Diego Salazar Digital Services: custom website design, social media posting, vlogs and ad creation for small businesses in the US and Europe. Message me on WhatsApp.">
@@ -14,7 +15,7 @@
 <meta name="twitter:card" content="summary">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Newsreader:ital,opsz,wght@1,6..72,400..600&family=Karla:ital,wght@0,400..800;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,100..125,300..900;1,100..125,300..900&family=Hanken+Grotesk:ital,wght@0,300..700;1,300..500&display=swap" rel="stylesheet">
 <style>
 /* Layout idea: a black-and-gold digital services site. Ambient gold dust behind everything,
    one orchestrated moment (the explainer film on Home), quiet editorial pages around it. */
@@ -28,9 +29,9 @@
   --line:rgba(5,7,10,.16);
   --stage:#070A0F;
   --stage-ink:#F5F8FC;
-  --font-display:"Young Serif", "Cooper", Georgia, serif;
-  --font-accent:"Newsreader", Georgia, "Times New Roman", serif;
-  --font-body:"Karla", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display:"Archivo", "Arial Black", "Helvetica Neue", sans-serif;
+  --font-accent:"Archivo", "Helvetica Neue", Arial, sans-serif;
+  --font-body:"Hanken Grotesk", "Helvetica Neue", Helvetica, Arial, sans-serif;
   --radius:14px;
   --max:1180px;
   color-scheme: light;
@@ -517,6 +518,27 @@ body.loading .rise{animation-play-state:paused}
   .wsplit .wi{transform:none!important}
   .pending{opacity:1!important; transform:none!important; clip-path:none!important}
 }
+
+/* ===== Type system: wide bold headings + neo-grotesk text ===== */
+h1, .h2, .cta-band h2, #loader .name, .brand, .track span, .caption h3, .caption .num, .kpi b, .svc .big, .card .n{font-family:var(--font-display); font-stretch:125%}
+h1, .h2, .cta-band h2{text-transform:uppercase; font-weight:800; letter-spacing:-.005em; line-height:1}
+.hero h1{font-size:clamp(36px, 7vw, 96px); font-weight:800; letter-spacing:-.01em; line-height:.98}
+.h2{font-size:clamp(26px, 4vw, 48px)}
+.cta-band h2{font-size:clamp(26px, 4.2vw, 54px); max-width:18ch}
+.card h3, .work h3, .svc h3, .step h3, .portrait .ph b, .fact b{font-family:var(--font-body); font-stretch:100%; font-weight:500; letter-spacing:-.01em; text-transform:none}
+.svc h3{font-size:clamp(24px, 2.6vw, 32px)}
+.caption h3{text-transform:uppercase; font-weight:800; font-size:clamp(15px, 2.3vw, 30px); letter-spacing:0}
+em.serif, .hero h1 .shine, .cta-band h2 em{font-family:var(--font-accent); font-stretch:125%; font-style:italic; font-weight:300; font-size:1em; letter-spacing:-.01em}
+.brand{font-weight:800; font-size:15.5px; text-transform:uppercase; letter-spacing:.01em}
+#loader .name{font-weight:800; text-transform:uppercase; font-size:clamp(22px, 4.2vw, 46px); letter-spacing:0}
+.track span{font-weight:800; text-transform:uppercase; font-size:clamp(20px, 3.2vw, 38px); letter-spacing:0}
+.track span:nth-child(even){font-family:var(--font-accent); font-stretch:125%; font-style:italic; font-weight:300; font-size:clamp(20px, 3.2vw, 38px)}
+.step .n, #wipe span{font-family:var(--font-accent); font-stretch:125%; font-style:italic; font-weight:300; text-transform:uppercase}
+.step .n{font-size:40px}
+#wipe span{font-size:clamp(34px, 6vw, 76px)}
+.svc .big{font-style:normal; font-weight:800; font-size:48px}
+.lede, .bio p{font-weight:300}
+.bio p{font-size:19px}
 </style>
 </head>
 <body>
@@ -892,7 +914,7 @@ body.loading .rise{animation-play-state:paused}
 
   // ---- Theme ----
   function store(k, v){ try{ if(v===undefined) return localStorage.getItem(k); localStorage.setItem(k, v); }catch(e){ return null; } }
-  var initial = store("theme") || root.getAttribute("data-theme") || "dark";
+  var initial = store("theme") || "dark";
   function setTheme(t){
     root.setAttribute("data-theme", t);
     document.getElementById("themeBtn").setAttribute("aria-label", t === "dark" ? "Switch to light mode" : "Switch to dark mode");
@@ -1094,10 +1116,13 @@ body.loading .rise{animation-play-state:paused}
         var off = document.createElement("canvas"), W = Math.ceil(r.width), H = Math.ceil(r.height);
         off.width = W; off.height = H;
         var o = off.getContext("2d");
-        o.font = size + "px " + fam; o.textBaseline = "middle"; o.fillStyle = "#000";
-        o.fillText(el.textContent, padL, padT + (H - padT - padB) / 2);
+        o.font = cs.fontStyle + " " + cs.fontWeight + " " + size + "px " + fam;
+        try { o.fontStretch = parseFloat(cs.fontStretch) >= 120 ? "expanded" : "normal"; o.letterSpacing = cs.letterSpacing === "normal" ? "0px" : cs.letterSpacing; } catch (e) {}
+        o.textBaseline = "middle"; o.fillStyle = "#000";
+        var txt = cs.textTransform === "uppercase" ? el.textContent.toUpperCase() : el.textContent;
+        o.fillText(txt, padL, padT + (H - padT - padB) / 2);
         var data = o.getImageData(0, 0, W, H).data, pts = [], step = size > 90 ? 3 : 2;
-        for (var y = 0; y < H; y += step) for (var x = 0; x < W; x += step) if (data[(y * W + x) * 4 + 3] > 140) pts.push([r.left + x, r.top + y]);
+        for (var y = 0; y < H; y += step) for (var x = 0; x < W; x += step) if (data[(y * W + x) * 4 + 3] > 140) pts.push([r.left + x + window.scrollX, r.top + y + window.scrollY]);
         if (!pts.length){ el.classList.remove("forming"); delete el.dataset.dusting; return; }
         var max = 1800; if (pts.length > max){ var keep = []; for (var k = 0; k < max; k++) keep.push(pts[Math.floor(k * pts.length / max)]); pts = keep; }
         var cv = document.createElement("canvas"); cv.className = "dustword"; document.body.appendChild(cv);
@@ -1115,12 +1140,13 @@ body.loading .rise{animation-play-state:paused}
         function ease(t){ return t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
         (function frame(now){
           if (cancelled) return;
-          var el2 = now - t0, done = true; c.clearRect(0, 0, VW, VH);
+          var el2 = now - t0, done = true, sX = window.scrollX, sY = window.scrollY; c.clearRect(0, 0, VW, VH);
           for (var i = 0; i < parts.length; i++){
             var q = parts[i], t = Math.max(0, Math.min(1, (el2 - q.delay) / DUR)), e = ease(t);
             if (t < 1) done = false;
             var bend = Math.sin(e * Math.PI) * q.swirl;
-            var x = q.sx + (q.tx - q.sx) * e + bend, y = q.sy + (q.ty - q.sy) * e - bend * .4;
+            var tx = q.tx - sX, ty = q.ty - sY;
+            var x = q.sx + (tx - q.sx) * e + bend, y = q.sy + (ty - q.sy) * e - bend * .4;
             c.globalAlpha = (0.25 + 0.75 * e) * (0.75 + 0.25 * Math.sin(now / 120 + q.tw));
             c.fillStyle = q.c; c.beginPath(); c.arc(x, y, q.r * (1.4 - .5 * e), 0, 6.283); c.fill();
           }
@@ -1128,7 +1154,8 @@ body.loading .rise{animation-play-state:paused}
           if (!done || el2 < DUR + 1300) requestAnimationFrame(frame);
         })(t0);
       };
-      (document.fonts && document.fonts.load ? document.fonts.load(size + "px " + fam).catch(function(){}) : Promise.resolve()).then(function(){ requestAnimationFrame(go); });
+      var csf = getComputedStyle(el);
+      (document.fonts && document.fonts.load ? document.fonts.load(csf.fontStyle + " " + csf.fontWeight + " " + size + "px " + fam).catch(function(){}) : Promise.resolve()).then(function(){ requestAnimationFrame(go); });
     }
 
     // --- preloader ---
