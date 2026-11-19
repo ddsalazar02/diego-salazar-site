@@ -377,8 +377,8 @@ form.panel{padding:34px; border-radius:22px; background:var(--surface); border:1
 .field input:focus, .field textarea:focus, .field select:focus{outline:none; border-color:var(--gold); box-shadow:0 0 0 4px color-mix(in srgb, var(--gold) 18%, transparent)}
 .field textarea{min-height:130px; resize:vertical}
 fieldset.field{border:0; padding:0; margin:0}
-.pick{display:flex; flex-wrap:wrap; gap:8px}
-.pick input{position:absolute; opacity:0; pointer-events:none}
+.pick{display:flex; flex-wrap:wrap; gap:8px; position:relative}
+.pick input{position:absolute; left:0; top:0; width:1px; height:1px; margin:0; opacity:0; pointer-events:none}
 .pick label{padding:9px 15px; border-radius:99px; border:1px solid var(--line); cursor:pointer; font-weight:600; font-size:14px; letter-spacing:0; transition:all .2s}
 .pick input:checked + label{background:var(--gold); border-color:var(--gold); color:#05070A}
 :root[data-theme="light"] .pick input:checked + label{color:#FFFFFF}
@@ -468,8 +468,10 @@ body::after{content:""; position:fixed; inset:0; z-index:200; pointer-events:non
 .card:hover, .work:hover, .chap:hover{border-color:rgba(255,255,255,.55)}
 .btn-line:hover{border-color:var(--ink)}
 /* ===== Motion layer: preloader, split headlines, scroll reveals, page wipe ===== */
-#loader{position:fixed; left:0; right:0; top:0; height:100vh; height:100lvh; z-index:300; display:grid; place-items:center; background:#05070A; touch-action:none; animation:failsafe 0s 7s forwards}
+#loader{position:fixed; left:0; top:0; width:100%; width:100vw; min-height:100%; height:100vh; height:100lvh; z-index:300; display:grid; place-items:center; background:#05070A; touch-action:none; animation:failsafe 0s 7s forwards}
+#loader::before{content:""; position:absolute; left:-20px; right:-20px; top:-100px; bottom:-100px; background:#05070A; z-index:-1}
 #loader.done{background:transparent; pointer-events:none}
+#loader.done::before{display:none}
 @keyframes failsafe{to{visibility:hidden}}
 #loader .panel{position:absolute; left:0; right:0; height:50.5%; background:#05070A; transition:transform 1.05s cubic-bezier(.76,0,.24,1)}
 #loader .panel.t{top:0}
@@ -499,6 +501,8 @@ body::after{content:""; position:fixed; inset:0; z-index:200; pointer-events:non
 #loader.gone{display:none}
 body.loading .rise{animation-play-state:paused}
 body.loading, html:has(body.loading){overflow:hidden; overscroll-behavior:none}
+body.veil > *:not(#loader){visibility:hidden!important}
+html{background:var(--bg)}
 
 .wsplit .w{display:inline-block; overflow:hidden; vertical-align:top; padding:0 .02em .1em; margin-bottom:-.1em}
 .wsplit .w:has(.shine, em){padding:.1em .2em .3em; margin:-.1em -.2em -.3em}
@@ -573,7 +577,7 @@ em.serif, .hero h1 .shine, .cta-band h2 em{font-family:var(--font-accent); font-
 </style>
 </head>
 <body>
-<script>if(!window.matchMedia("(prefers-reduced-motion: reduce)").matches){document.body.classList.add("loading");setTimeout(function(){document.body.classList.remove("loading")},8000)}window.scrollTo(0,0);</script>
+<script>if(!window.matchMedia("(prefers-reduced-motion: reduce)").matches){document.body.classList.add("loading","veil");setTimeout(function(){document.body.classList.remove("loading","veil")},8000)}window.scrollTo(0,0);</script>
 <div id="loader" aria-hidden="true">
   <div class="panel t"></div><div class="panel b"></div>
   <div class="center">
@@ -1266,7 +1270,7 @@ em.serif, .hero h1 .shine, .cta-band h2 em{font-family:var(--font-accent); font-
     // --- preloader ---
     var loader = document.getElementById("loader");
     function startSite(){
-      body.classList.remove("loading");
+      body.classList.remove("loading", "veil");
       formLogo(document.querySelector("header .brand svg.logo"), { dur: 1400, spread: 350, size: .8, pad: 60 });
       var v = document.querySelector(".view.on"); if (v) window.__prepView(v, true);
     }
@@ -1285,7 +1289,7 @@ em.serif, .hero h1 .shine, .cta-band h2 em{font-family:var(--font-accent); font-
         if (p >= 1) seam.classList.add("met");
         if (p < 1) requestAnimationFrame(step);
         else setTimeout(function(){
-          loader.classList.add("done"); setTimeout(startSite, 380);
+          loader.classList.add("done"); body.classList.remove("veil"); setTimeout(startSite, 380);
           setTimeout(function(){ loader.classList.add("gone"); }, 1200);
         }, 180);
       })(t0);
