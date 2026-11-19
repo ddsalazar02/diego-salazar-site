@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <script>try{var t=localStorage.getItem("theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}try{if("scrollRestoration" in history)history.scrollRestoration="manual"}catch(e){}if(!window.matchMedia("(prefers-reduced-motion: reduce)").matches){document.documentElement.classList.add("booting");setTimeout(function(){document.documentElement.classList.remove("booting")},8000)}</script>
-<style>html.booting,html.booting body{background:#05070A!important;overflow:hidden!important;height:100%}html.booting body>*:not(#loader):not(#loaderBg):not(script){display:none!important}#loaderBg{display:none}html.booting #loaderBg{display:block;position:fixed;left:-10vw;right:-10vw;top:-50vh;height:200vh;background:#05070A;z-index:299}</style>
+<style>html{scrollbar-gutter:stable}html.booting,html.booting body{background:#05070A!important;overflow:hidden!important;height:100%}html.booting body>*:not(#loader):not(#loaderBg):not(script){display:none!important}#loaderBg{display:none}html.booting #loaderBg{display:block;position:fixed;left:-10vw;right:-10vw;top:-50vh;height:200vh;background:#05070A;z-index:299}</style>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Diego Salazar Digital Services</title>
 <meta name="description" content="Diego Salazar Digital Services: custom website design, social media posting, video editing, blog writing and ad creation for small businesses in the US and Europe. Message me on WhatsApp.">
@@ -55,7 +55,7 @@
 }
 
 *{box-sizing:border-box}
-html{scroll-behavior:smooth; font-synthesis:none}
+html{scroll-behavior:smooth; font-synthesis:none; scrollbar-gutter:stable}
 body{
   margin:0; background:var(--bg); color:var(--ink);
   font-family:var(--font-body); font-size:17.5px; line-height:1.6;
