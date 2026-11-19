@@ -456,7 +456,7 @@ body::after{content:""; position:fixed; inset:0; z-index:200; pointer-events:non
 .wsplit .wi.still{transform:none!important; transition:none}
 .forming{opacity:0!important}
 .formed{opacity:1; transition:opacity .9s ease}
-.dustword{position:fixed; inset:0; width:100%; height:100%; z-index:60; pointer-events:none}
+.dustword{position:fixed; left:0; top:0; z-index:60; pointer-events:none}
 /* White edging and highlights */
 .card, .work, .step, form.panel, .reach a, .reach div, .chap, .journey, .stage, .cta-band{box-shadow:inset 0 1px 0 rgba(255,255,255,.1)}
 .stage, .cta-band{border-color:rgba(255,255,255,.22)}
@@ -1184,8 +1184,8 @@ em.serif, .hero h1 .shine, .cta-band h2 em{font-family:var(--font-accent); font-
         var max = 1800; if (pts.length > max){ var keep = []; for (var k = 0; k < max; k++) keep.push(pts[Math.floor(k * pts.length / max)]); pts = keep; }
         var cv = document.createElement("canvas"); cv.className = "dustword"; if (opts.z) cv.style.zIndex = opts.z; document.body.appendChild(cv);
         var cancelled = false, handle = { cancel: function(){ cancelled = true; cv.remove(); delete el.dataset.dusting; } }; liveDust.push(handle);
-        var dpr = Math.min(2, window.devicePixelRatio || 1), VW = window.innerWidth, VH = window.innerHeight;
-        cv.width = VW * dpr; cv.height = VH * dpr; var c = cv.getContext("2d"); c.setTransform(dpr, 0, 0, dpr, 0, 0);
+        var dpr = Math.min(2, window.devicePixelRatio || 1), VW = document.documentElement.clientWidth, VH = document.documentElement.clientHeight;
+        cv.width = VW * dpr; cv.height = VH * dpr; cv.style.width = VW + "px"; cv.style.height = VH + "px"; var c = cv.getContext("2d"); c.setTransform(dpr, 0, 0, dpr, 0, 0);
         var gold = getComputedStyle(document.documentElement).getPropertyValue("--gold").trim() || "#3DB8FF";
         var hi = getComputedStyle(document.documentElement).getPropertyValue("--gold-hi").trim() || "#A5DEFF";
         var parts = pts.map(function(p){
@@ -1267,7 +1267,7 @@ em.serif, .hero h1 .shine, .cta-band h2 em{font-family:var(--font-accent); font-
   var mouse = { x: -999, y: -999 };
   function size(){
     dpr = Math.min(2, window.devicePixelRatio || 1);
-    W = window.innerWidth; H = window.innerHeight;
+    W = document.documentElement.clientWidth; H = document.documentElement.clientHeight;
     cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr,0,0,dpr,0,0);
     var n = Math.min(130, Math.round(W * H / 12000));
     parts = [];
