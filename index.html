@@ -436,9 +436,9 @@ body::after{content:""; position:fixed; inset:0; z-index:200; pointer-events:non
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.45 0 0 0 0 0.3 0 0 0 0 0.18 0 0 0 1 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
 
 .wsplit .wi.still{transform:none!important; transition:none}
-.shine.forming{opacity:0}
-.shine.formed{opacity:1; transition:opacity .9s ease}
-#dustword{position:fixed; inset:0; width:100%; height:100%; z-index:60; pointer-events:none}
+.forming{opacity:0!important}
+.formed{opacity:1; transition:opacity .9s ease}
+.dustword{position:fixed; inset:0; width:100%; height:100%; z-index:60; pointer-events:none}
 /* ===== Motion layer: preloader, split headlines, scroll reveals, page wipe ===== */
 #loader{position:fixed; inset:0; z-index:100; display:grid; place-items:center; animation:failsafe 0s 7s forwards}
 @keyframes failsafe{to{visibility:hidden}}
@@ -911,6 +911,7 @@ body.loading .rise{animation-play-state:paused}
     nav.classList.remove("open"); menuBtn.setAttribute("aria-expanded","false");
     window.scrollTo(0,0);
     film.visible(name === "home");
+    if (window.__killDust) window.__killDust();
     if (routedOnce && window.__prepView) window.__prepView(document.getElementById("v-" + name), true);
     routedOnce = true;
   }
@@ -1004,7 +1005,7 @@ body.loading .rise{animation-play-state:paused}
           if (n.tagName === "BR"){ el.appendChild(n); return; }
           var w2 = document.createElement("span"); w2.className = "w";
           var wi2 = document.createElement("span"); wi2.className = "wi"; wi2.style.setProperty("--i", i++);
-          if (n.classList && n.classList.contains("shine")) wi2.classList.add("still");
+          if (n.tagName === "EM" || (n.classList && n.classList.contains("shine"))) wi2.classList.add("still");
           wi2.appendChild(n); w2.appendChild(wi2); el.appendChild(w2);
         }
       });
@@ -1031,7 +1032,21 @@ body.loading .rise{animation-play-state:paused}
     function inView(el){ var r = el.getBoundingClientRect(); return r.top < window.innerHeight * 0.92 && r.bottom > 0; }
 
     // prepare a view: above-the-fold animates now, below waits for scroll
+    var dustIO = ioOK ? new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if (!e.isIntersecting) return; dustIO.unobserve(e.target);
+        var w = e.target, wait = w.closest(".pending, .shown") ? 1050 : 300;
+        setTimeout(function(){ formWord(w); }, wait);
+      });
+    }, { threshold: 0.6 }) : null;
+    function prepDust(view){
+      if (reduce || !ioOK) return;
+      view.querySelectorAll(".hero h1 .shine, em.serif, .cta-band h2 em").forEach(function(w){
+        w.classList.remove("formed"); w.classList.add("forming"); dustIO.unobserve(w); dustIO.observe(w);
+      });
+    }
     window.__prepView = function(view, immediate){
+      prepDust(view);
       if (reduce) { view.querySelectorAll("[data-split]").forEach(function(h){ h.classList.add("in"); }); return; }
       view.querySelectorAll("[data-split]").forEach(function(h){
         h.classList.remove("in");
@@ -1050,8 +1065,14 @@ body.loading .rise{animation-play-state:paused}
 
 
     // --- gold dust gathers into the accent word on first load ---
+    var liveDust = [];
+    window.__killDust = function(){
+      liveDust.forEach(function(d){ d.cancel(); }); liveDust = [];
+      document.querySelectorAll(".forming").forEach(function(w){ w.classList.remove("forming"); });
+    };
     function formWord(el){
-      if (!el || reduce) return;
+      if (!el || reduce || el.dataset.dusting) return;
+      el.dataset.dusting = "1"; el.classList.remove("formed");
       var fam = getComputedStyle(el).fontFamily, size = parseFloat(getComputedStyle(el).fontSize);
       el.classList.add("forming");
       var go = function(){
@@ -1064,9 +1085,10 @@ body.loading .rise{animation-play-state:paused}
         o.fillText(el.textContent, padL, padT + (H - padT - padB) / 2);
         var data = o.getImageData(0, 0, W, H).data, pts = [], step = size > 90 ? 3 : 2;
         for (var y = 0; y < H; y += step) for (var x = 0; x < W; x += step) if (data[(y * W + x) * 4 + 3] > 140) pts.push([r.left + x, r.top + y]);
-        if (!pts.length){ el.classList.remove("forming"); return; }
+        if (!pts.length){ el.classList.remove("forming"); delete el.dataset.dusting; return; }
         var max = 1800; if (pts.length > max){ var keep = []; for (var k = 0; k < max; k++) keep.push(pts[Math.floor(k * pts.length / max)]); pts = keep; }
-        var cv = document.createElement("canvas"); cv.id = "dustword"; document.body.appendChild(cv);
+        var cv = document.createElement("canvas"); cv.className = "dustword"; document.body.appendChild(cv);
+        var cancelled = false, handle = { cancel: function(){ cancelled = true; cv.remove(); delete el.dataset.dusting; } }; liveDust.push(handle);
         var dpr = Math.min(2, window.devicePixelRatio || 1), VW = window.innerWidth, VH = window.innerHeight;
         cv.width = VW * dpr; cv.height = VH * dpr; var c = cv.getContext("2d"); c.setTransform(dpr, 0, 0, dpr, 0, 0);
         var gold = getComputedStyle(document.documentElement).getPropertyValue("--gold").trim() || "#D6A848";
@@ -1079,6 +1101,7 @@ body.loading .rise{animation-play-state:paused}
         var t0 = performance.now(), DUR = 1700, revealed = false;
         function ease(t){ return t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
         (function frame(now){
+          if (cancelled) return;
           var el2 = now - t0, done = true; c.clearRect(0, 0, VW, VH);
           for (var i = 0; i < parts.length; i++){
             var q = parts[i], t = Math.max(0, Math.min(1, (el2 - q.delay) / DUR)), e = ease(t);
@@ -1088,7 +1111,7 @@ body.loading .rise{animation-play-state:paused}
             c.globalAlpha = (0.25 + 0.75 * e) * (0.75 + 0.25 * Math.sin(now / 120 + q.tw));
             c.fillStyle = q.c; c.beginPath(); c.arc(x, y, q.r * (1.4 - .5 * e), 0, 6.283); c.fill();
           }
-          if (el2 > DUR + 250 && !revealed){ revealed = true; el.classList.remove("forming"); el.classList.add("formed"); cv.style.transition = "opacity 1s ease"; cv.style.opacity = "0"; setTimeout(function(){ cv.remove(); }, 1100); }
+          if (el2 > DUR + 250 && !revealed){ revealed = true; el.classList.remove("forming"); el.classList.add("formed"); cv.style.transition = "opacity 1s ease"; cv.style.opacity = "0"; setTimeout(function(){ cv.remove(); delete el.dataset.dusting; liveDust = liveDust.filter(function(h){ return h !== handle; }); }, 1100); }
           if (!done || el2 < DUR + 1300) requestAnimationFrame(frame);
         })(t0);
       };
@@ -1100,7 +1123,6 @@ body.loading .rise{animation-play-state:paused}
     function startSite(){
       body.classList.remove("loading");
       var v = document.querySelector(".view.on"); if (v) window.__prepView(v, true);
-      if (v && v.dataset.view === "home") formWord(v.querySelector(".hero h1 .shine"));
     }
     if (reduce || !body.classList.contains("loading")){ loader.classList.add("gone"); startSite(); }
     else {
