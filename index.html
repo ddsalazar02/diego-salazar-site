@@ -462,6 +462,7 @@ body::after{content:""; position:fixed; inset:0; z-index:200; pointer-events:non
 body.loading .rise{animation-play-state:paused}
 
 .wsplit .w{display:inline-block; overflow:hidden; vertical-align:top; padding:0 .02em .1em; margin-bottom:-.1em}
+.wsplit .w:has(.shine, em){padding:.1em .2em .3em; margin:-.1em -.2em -.3em}
 .wsplit .wi{display:inline-block; transform:translateY(108%) rotate(4deg); transform-origin:left bottom; transition:transform 1.05s cubic-bezier(.2,.8,.2,1); transition-delay:calc(var(--i) * 65ms)}
 .wsplit.in .wi{transform:none}
 
