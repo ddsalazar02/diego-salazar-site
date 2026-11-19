@@ -412,12 +412,13 @@ footer{position:relative; z-index:1; border-top:1px solid var(--line); margin-to
   .playpause{grid-column:1 / -1; width:auto; height:46px}
 }
 @media (max-width: 760px){
-  nav.main{display:none; position:absolute; top:72px; left:0; right:0; height:calc(100vh - 72px); height:calc(100dvh - 72px); flex-direction:column; align-items:stretch; gap:6px; padding:22px 18px 30px; background:var(--bg); border-top:1px solid var(--line); overflow-y:auto; overscroll-behavior:contain; z-index:50}
+  nav.main{display:none; position:fixed; top:72px; left:0; right:0; bottom:0; flex-direction:column; align-items:stretch; gap:8px; padding:20px 16px calc(24px + env(safe-area-inset-bottom)); background:var(--bg); border-top:1px solid var(--line); overflow-y:auto; overscroll-behavior:contain; z-index:50}
   nav.main.open{display:flex; animation:menuIn .3s ease both}
-  nav.main a{padding:16px 18px; font-size:22px; font-family:var(--font-display); font-stretch:125%; font-weight:800; text-transform:uppercase; border-radius:14px; border:1px solid var(--line); background:var(--surface)}
+  nav.main a{padding:15px 18px; font-size:clamp(17px, 5.2vw, 21px); font-family:var(--font-display); font-stretch:125%; font-weight:800; text-transform:uppercase; border-radius:14px; border:1px solid var(--line); background:var(--surface)}
   @keyframes menuIn{from{opacity:0; transform:translateY(-10px)} to{opacity:1; transform:none}}
-  body.menu-open, html:has(body.menu-open){overflow:hidden}
-  body.menu-open header.top{background:var(--bg)}
+  /* while the menu is open, the page is frozen in place and the header + menu are pinned to the screen */
+  body.menu-open{position:fixed; left:0; right:0; width:100%; overflow:hidden}
+  body.menu-open header.top{position:fixed; top:0; left:0; right:0; z-index:120; background:var(--bg); backdrop-filter:none; -webkit-backdrop-filter:none}
   .menu-btn{display:grid}
   .top .btn{display:none}
   .stage{aspect-ratio:4/5}
@@ -953,11 +954,21 @@ em.serif, .hero h1 .shine, .cta-band h2 em{font-family:var(--font-accent); font-
 
   // ---- Mobile menu ----
   var nav = document.getElementById("mainnav"), menuBtn = document.getElementById("menuBtn");
-  menuBtn.addEventListener("click", function(){
-    var open = nav.classList.toggle("open");
-    menuBtn.setAttribute("aria-expanded", open);
-    document.body.classList.toggle("menu-open", open);
-  });
+  var menuScrollY = 0;
+  function openMenu(){
+    menuScrollY = window.scrollY;
+    document.body.style.top = -menuScrollY + "px";
+    document.body.classList.add("menu-open");
+    nav.classList.add("open"); menuBtn.setAttribute("aria-expanded", "true"); menuBtn.setAttribute("aria-label", "Close menu");
+  }
+  function closeMenu(restore){
+    if (!document.body.classList.contains("menu-open")) { nav.classList.remove("open"); return; }
+    document.body.classList.remove("menu-open"); document.body.style.top = "";
+    nav.classList.remove("open"); menuBtn.setAttribute("aria-expanded", "false"); menuBtn.setAttribute("aria-label", "Open menu");
+    if (restore) window.scrollTo({ top: menuScrollY, behavior: "instant" });
+  }
+  menuBtn.addEventListener("click", function(){ nav.classList.contains("open") ? closeMenu(true) : openMenu(); });
+  window.addEventListener("resize", function(){ if (window.innerWidth > 760) closeMenu(true); });
 
   // ---- Routing ----
   var views = ["home","about","work","services","contact"];
@@ -968,7 +979,7 @@ em.serif, .hero h1 .shine, .cta-band h2 em{font-family:var(--font-accent); font-
     document.querySelectorAll("nav.main a").forEach(function(a){
       if (a.getAttribute("href") === "#" + name) a.setAttribute("aria-current","page"); else a.removeAttribute("aria-current");
     });
-    nav.classList.remove("open"); menuBtn.setAttribute("aria-expanded","false"); document.body.classList.remove("menu-open");
+    closeMenu(false);
     window.scrollTo(0,0);
     film.visible(name === "home");
     if (window.__killDust) window.__killDust();
