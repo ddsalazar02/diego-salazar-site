@@ -1292,7 +1292,7 @@ em.serif, .hero h1 .shine, .cta-band h2 em{font-family:var(--font-accent); font-
         if (p >= 1) seam.classList.add("met");
         if (p < 1) requestAnimationFrame(step);
         else setTimeout(function(){
-          loader.classList.add("done"); body.classList.remove("veil"); document.documentElement.classList.remove("booting"); window.scrollTo(0, 0); setTimeout(startSite, 380);
+          loader.classList.add("done"); body.classList.remove("veil"); document.documentElement.classList.remove("booting"); window.scrollTo(0, 0); startSite();
           setTimeout(function(){ loader.classList.add("gone"); }, 1200);
         }, 180);
       })(t0);
