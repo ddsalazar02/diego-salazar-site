@@ -2,7 +2,8 @@
 <html lang="en" data-theme="dark">
 <head>
 <meta charset="utf-8">
-<script>try{var t=localStorage.getItem("theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<script>try{var t=localStorage.getItem("theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}try{if("scrollRestoration" in history)history.scrollRestoration="manual"}catch(e){}if(!window.matchMedia("(prefers-reduced-motion: reduce)").matches){document.documentElement.classList.add("booting");setTimeout(function(){document.documentElement.classList.remove("booting")},8000)}</script>
+<style>html.booting,html.booting body{background:#05070A!important;overflow:hidden!important;height:100%}html.booting body>*:not(#loader):not(#loaderBg):not(script){display:none!important}#loaderBg{display:none}html.booting #loaderBg{display:block;position:fixed;left:-10vw;right:-10vw;top:-50vh;height:200vh;background:#05070A;z-index:299}</style>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Diego Salazar Digital Services</title>
 <meta name="description" content="Diego Salazar Digital Services: custom website design, social media posting, video editing, blog writing and ad creation for small businesses in the US and Europe. Message me on WhatsApp.">
@@ -16,7 +17,8 @@
 <meta name="twitter:card" content="summary">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,100..125,300..900;1,100..125,300..900&family=Hanken+Grotesk:ital,wght@0,300..700;1,300..500&display=swap" rel="stylesheet">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,100..125,300..900;1,100..125,300..900&family=Hanken+Grotesk:ital,wght@0,300..700;1,300..500&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,100..125,300..900;1,100..125,300..900&family=Hanken+Grotesk:ital,wght@0,300..700;1,300..500&display=swap" rel="stylesheet"></noscript>
 <style>
 /* Layout idea: a black-and-gold digital services site. Ambient gold dust behind everything,
    one orchestrated moment (the explainer film on Home), quiet editorial pages around it. */
@@ -578,6 +580,7 @@ em.serif, .hero h1 .shine, .cta-band h2 em{font-family:var(--font-accent); font-
 </head>
 <body>
 <script>if(!window.matchMedia("(prefers-reduced-motion: reduce)").matches){document.body.classList.add("loading","veil");setTimeout(function(){document.body.classList.remove("loading","veil")},8000)}window.scrollTo(0,0);</script>
+<div id="loaderBg" aria-hidden="true"></div>
 <div id="loader" aria-hidden="true">
   <div class="panel t"></div><div class="panel b"></div>
   <div class="center">
@@ -1270,7 +1273,7 @@ em.serif, .hero h1 .shine, .cta-band h2 em{font-family:var(--font-accent); font-
     // --- preloader ---
     var loader = document.getElementById("loader");
     function startSite(){
-      body.classList.remove("loading", "veil");
+      body.classList.remove("loading", "veil"); document.documentElement.classList.remove("booting");
       formLogo(document.querySelector("header .brand svg.logo"), { dur: 1400, spread: 350, size: .8, pad: 60 });
       var v = document.querySelector(".view.on"); if (v) window.__prepView(v, true);
     }
@@ -1289,7 +1292,7 @@ em.serif, .hero h1 .shine, .cta-band h2 em{font-family:var(--font-accent); font-
         if (p >= 1) seam.classList.add("met");
         if (p < 1) requestAnimationFrame(step);
         else setTimeout(function(){
-          loader.classList.add("done"); body.classList.remove("veil"); setTimeout(startSite, 380);
+          loader.classList.add("done"); body.classList.remove("veil"); document.documentElement.classList.remove("booting"); window.scrollTo(0, 0); setTimeout(startSite, 380);
           setTimeout(function(){ loader.classList.add("gone"); }, 1200);
         }, 180);
       })(t0);
