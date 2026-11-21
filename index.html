@@ -1184,17 +1184,28 @@ em.serif, .hero h1 .shine, .cta-band h2 em{font-family:var(--font-accent); font-
       el.classList.add("forming");
       var go = function(){
         var r = el.getBoundingClientRect(), cs = getComputedStyle(el);
-        var padL = parseFloat(cs.paddingLeft), padT = parseFloat(cs.paddingTop), padB = parseFloat(cs.paddingBottom);
-        var off = document.createElement("canvas"), W = Math.ceil(r.width), H = Math.ceil(r.height);
-        off.width = W; off.height = H;
-        var o = off.getContext("2d");
-        o.font = cs.fontStyle + " " + cs.fontWeight + " " + size + "px " + fam;
-        try { o.fontStretch = parseFloat(cs.fontStretch) >= 120 ? "expanded" : "normal"; o.letterSpacing = cs.letterSpacing === "normal" ? "0px" : cs.letterSpacing; } catch (e) {}
-        o.textBaseline = "middle"; o.fillStyle = "#000";
+        // the word's real glyph box on screen (what the dust must land on)
+        var rg = document.createRange(); rg.selectNodeContents(el); var tb = rg.getBoundingClientRect();
+        if (!tb.width) tb = r;
+        var wide = parseFloat(cs.fontStretch) >= 120 || cs.fontStretch === "expanded";
         var txt = cs.textTransform === "uppercase" ? el.textContent.toUpperCase() : el.textContent;
-        o.fillText(txt, padL, padT + (H - padT - padB) / 2);
+        var off = document.createElement("canvas"), o = off.getContext("2d");
+        // font-stretch inside the font shorthand works in Safari; the separate fontStretch property does not
+        var font = cs.fontStyle + " " + cs.fontWeight + " " + (wide ? "expanded " : "") + size + "px " + fam;
+        o.font = font;
+        try { if (wide) o.fontStretch = "expanded"; o.letterSpacing = cs.letterSpacing === "normal" ? "0px" : cs.letterSpacing; } catch (e) {}
+        var m = o.measureText(txt), drawnW = Math.max(1, m.width);
+        var W = Math.ceil(Math.max(r.width, drawnW) + size), H = Math.ceil(r.height);
+        off.width = W; off.height = H;
+        o.font = font;
+        try { if (wide) o.fontStretch = "expanded"; o.letterSpacing = cs.letterSpacing === "normal" ? "0px" : cs.letterSpacing; } catch (e) {}
+        o.textBaseline = "middle"; o.fillStyle = "#000";
+        var x0 = size * 0.25, yc = (tb.top - r.top) + tb.height / 2;
+        o.fillText(txt, x0, yc);
+        // stretch the sampled shape so its width matches the real word exactly, whatever the browser drew
+        var sx = tb.width / drawnW, ox = tb.left - r.left;
         var data = o.getImageData(0, 0, W, H).data, pts = [], step = size > 90 ? 3 : 2;
-        for (var y = 0; y < H; y += step) for (var x = 0; x < W; x += step) if (data[(y * W + x) * 4 + 3] > 140) pts.push([x, y]);
+        for (var y = 0; y < H; y += step) for (var x = 0; x < W; x += step) if (data[(y * W + x) * 4 + 3] > 140) pts.push([ox + (x - x0) * sx, y]);
         runDust(el, pts, {});
       };
       var csf = getComputedStyle(el);
